@@ -2,85 +2,88 @@
 
 namespace Program
 {
+    class Song
+    {
+        string name;
+        string author;
+        Song prev;    
+        public void SetName(string name)
+        {
+            this.name = name;
+        }
+        public void SetAuthor(string author)
+        {
+            this.author = author;
+        }
+        public void SetPrev(Song prevSong)
+        {
+            this.prev = prevSong;
+        }
+        public string Title()
+        {
+            return $"{name} — {author}";
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is Song))
+                return false;
+
+            Song other = (Song)obj;
+
+            return this.name == other.name && this.author == other.author;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(name, author);
+        }
+    }
+
     class HomeWork7
     {
-        public static string ReadFileSafely(string filePath)
+        public static void Main()
         {
-            try
-            {
-                if (!File.Exists(filePath))
-                {
-                    Console.WriteLine($"Файл не найден: {filePath}");
-                    return null;
-                }
-                return File.ReadAllText(filePath);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
-                return null;
-            }
-        }
-        public static void SearchMail(ref string s)
-        {
-            if (string.IsNullOrEmpty(s)) return;
+            List<Song> songs = new List<Song>();
 
-            int separatorIndex = s.IndexOf('#');
+            Song song1 = new Song();
+            song1.SetName("Bohemian Rhapsody");
+            song1.SetAuthor("Queen");
+            songs.Add(song1);
 
-            if (separatorIndex != -1)
+            Song song2 = new Song();
+            song2.SetName("Bohemian Rhapsody");
+            song2.SetAuthor("The Beatles");
+            song2.SetPrev(song1);
+            songs.Add(song2);
+
+            Song song3 = new Song();
+            song3.SetName("Imagine");
+            song3.SetAuthor("John Lennon");
+            song3.SetPrev(song2);
+            songs.Add(song3);
+
+            Song song4 = new Song();
+            song4.SetName("Hotel California");
+            song4.SetAuthor("Eagles");
+            song4.SetPrev(song3);
+            songs.Add(song4);
+
+            Console.WriteLine("Список песен:");
+            foreach (Song song in songs)
             {
-                s = s.Substring(separatorIndex + 1).Trim();
+                Console.WriteLine(song.Title());
+            }
+
+            Console.WriteLine("\nСравнение первой и второй песни:");
+            bool areEqual = songs[0].Equals(songs[1]);
+
+            if (areEqual)
+            {
+                Console.WriteLine("Песни одинаковые (совпадают названия и авторы).");
             }
             else
             {
-                s = "";
-            }
-        }
-
-        public static void Main(string[] args)
-        {
-            if (args.Length < 2)
-            {
-                Console.WriteLine("Пожалуйста, укажите входной и выходной файлы.");
-                Console.WriteLine("Пример: dotnet run -- input.txt output.txt");
-                return;
-            }
-
-            string inputPath = args[0];
-            string outputPath = args[1];
-
-            string content = ReadFileSafely(inputPath);
-            if (content == null) return;
-
-            try
-            {
-                string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
-
-                string[] emails = new string[lines.Length];
-                int count = 0;
-
-                foreach (string line in lines)
-                {
-                    string currentLine = line;
-
-                    SearchMail(ref currentLine);
-
-                    if (!string.IsNullOrWhiteSpace(currentLine))
-                    {
-                        emails[count] = currentLine;
-                        count++;
-                    }
-                }
-
-                Array.Resize(ref emails, count);
-
-                File.WriteAllLines(outputPath, emails);
-
-                Console.WriteLine($"Готово! Найдено адресов: {count}. Сохранено в {outputPath}.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка при обработке данных или записи файла: {ex.Message}");
+                Console.WriteLine("Песни разные.");
             }
         }
     }
