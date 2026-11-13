@@ -4,41 +4,83 @@ namespace Program
 {
     class HomeWork7
     {
-        static bool ImplementsIFormattable(object obj)
+        public static string ReadFileSafely(string filePath)
         {
-            if (obj is IFormattable)
+            try
             {
-                IFormattable formattable = obj as IFormattable;
-
-                if (formattable != null)
+                if (!File.Exists(filePath))
                 {
-                    Console.WriteLine($"Объект типа {obj.GetType().Name} реализует IFormattable.");
-                    return true;
+                    Console.WriteLine($"Файл не найден: {filePath}");
+                    return null;
                 }
+                return File.ReadAllText(filePath);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при чтении файла: {ex.Message}");
+                return null;
+            }
+        }
+        public static void SearchMail(ref string s)
+        {
+            if (string.IsNullOrEmpty(s)) return;
 
-            Console.WriteLine($"Объект типа {obj?.GetType().Name ?? "null"} НЕ реализует IFormattable.");
-            return false;
+            int separatorIndex = s.IndexOf('#');
+
+            if (separatorIndex != -1)
+            {
+                s = s.Substring(separatorIndex + 1).Trim();
+            }
+            else
+            {
+                s = "";
+            }
         }
 
-        public static void Main()
+        public static void Main(string[] args)
         {
-            object[] testObjects =
+            if (args.Length < 2)
             {
-            42,
-            3.14,
-            123.45m,
-            'A',
-            true,
-            "Hello",
-            };
+                Console.WriteLine("Пожалуйста, укажите входной и выходной файлы.");
+                Console.WriteLine("Пример: dotnet run -- input.txt output.txt");
+                return;
+            }
 
-            Console.WriteLine("Проверка реализации интерфейса IFormattable:\n");
+            string inputPath = args[0];
+            string outputPath = args[1];
 
-            foreach (object obj in testObjects)
+            string content = ReadFileSafely(inputPath);
+            if (content == null) return;
+
+            try
             {
-                bool result = ImplementsIFormattable(obj);
-                Console.WriteLine($"Результат: {result}\n");
+                string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+                string[] emails = new string[lines.Length];
+                int count = 0;
+
+                foreach (string line in lines)
+                {
+                    string currentLine = line;
+
+                    SearchMail(ref currentLine);
+
+                    if (!string.IsNullOrWhiteSpace(currentLine))
+                    {
+                        emails[count] = currentLine;
+                        count++;
+                    }
+                }
+
+                Array.Resize(ref emails, count);
+
+                File.WriteAllLines(outputPath, emails);
+
+                Console.WriteLine($"Готово! Найдено адресов: {count}. Сохранено в {outputPath}.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при обработке данных или записи файла: {ex.Message}");
             }
         }
     }
