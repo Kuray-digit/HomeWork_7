@@ -2,6 +2,24 @@
 
 namespace Program
 {
+    class WorkingWithMail
+    {
+        public void SearchMail(ref string s)
+        {
+            if (string.IsNullOrEmpty(s)) return;
+
+            int separatorIndex = s.IndexOf('#');
+
+            if (separatorIndex != -1)
+            {
+                s = s.Substring(separatorIndex + 1).Trim();
+            }
+            else
+            {
+                s = "";
+            }
+        }
+    }
     class HomeWork7
     {
         public static string ReadFileSafely(string filePath)
@@ -21,21 +39,8 @@ namespace Program
                 return null;
             }
         }
-        public static void SearchMail(ref string s)
-        {
-            if (string.IsNullOrEmpty(s)) return;
-
-            int separatorIndex = s.IndexOf('#');
-
-            if (separatorIndex != -1)
-            {
-                s = s.Substring(separatorIndex + 1).Trim();
-            }
-            else
-            {
-                s = "";
-            }
-        }
+        
+        
 
         public static void Main(string[] args)
         {
@@ -62,8 +67,8 @@ namespace Program
                 foreach (string line in lines)
                 {
                     string currentLine = line;
-
-                    SearchMail(ref currentLine);
+                    WorkingWithMail NewMail = new WorkingWithMail();
+                    NewMail.SearchMail(ref currentLine);
 
                     if (!string.IsNullOrWhiteSpace(currentLine))
                     {
